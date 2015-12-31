@@ -44,15 +44,6 @@ public abstract class Entity {
 			}
 		}
 		return false;
-		/*boolean leftX = this.x > e.x && this.x < e.x + e.width;
-		boolean topY = this.y > e.y && this.y < e.y + e.height;
-		boolean rightX = this.x + this.width > e.x && this.x + this.width < e.x + e.width;
-		boolean bottomY = this.y + this.height > e.y && this.y + this.height < e.y + e.height;
-		boolean topLeft = leftX && topY;
-		boolean topRight = rightX && topY;
-		boolean bottomLeft = leftX && bottomY;
-		boolean bottomRight = rightX && bottomY;
-		return topLeft || topRight || bottomLeft || bottomRight;*/
 	}
 	
 	public static boolean isPacman(Entity e) {

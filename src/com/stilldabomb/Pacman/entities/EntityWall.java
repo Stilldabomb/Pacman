@@ -78,33 +78,44 @@ public class EntityWall extends Entity {
 			// Upper left corner
 			if (!(directions.contains(Direction.WEST) && directions.contains(Direction.NORTH) && this.getWallAtDirection(Direction.NORTH).getWallAtDirection(Direction.WEST) != null)) {
 				if (directions.contains(Direction.WEST)) {
-					path.moveTo(this.x - this.width / 2 + 0.5, this.y);
+					EntityWall wWall = this.getWallAtDirection(Direction.WEST);
+					EntityWall nwWall = wWall.getWallAtDirection(Direction.NORTH);
+					if (nwWall == null) {
+						path.moveTo(this.x - this.width / 2, this.y);
+					} else {
+						path.moveTo(nwWall.getX() + nwWall.getWidth(), nwWall.getY() + nwWall.getHeight() / 2);
+					}
 				} else {
-					path.moveTo(this.x, this.y + this.height / 2 - 0.5);
+					path.moveTo(this.x, this.y + this.height / 2);
 				}
 				if (directions.contains(Direction.NORTH)) {
 					EntityWall nWall = this.getWallAtDirection(Direction.NORTH);
 					EntityWall nwWall = nWall.getWallAtDirection(Direction.WEST);
 					if (nwWall == null) {
-						path.curveTo(this.x, this.y, this.x, this.y, this.x, this.y - this.width / 2 + 0.5);
+						path.curveTo(this.x, this.y, this.x, this.y, this.x, this.y - this.width / 2);
 					} else {
-						path.curveTo(nWall.getX(), nWall.getY() + nWall.getHeight(), nWall.getX(), nWall.getY() + nWall.getHeight(), nwWall.getX() + nwWall.getWidth() / 2 + 0.5, nwWall.getY() + nwWall.getHeight());
+						path.curveTo(nWall.getX(), nWall.getY() + nWall.getHeight(), nWall.getX(), nWall.getY() + nWall.getHeight(), nwWall.getX() + nwWall.getWidth() / 2, nwWall.getY() + nwWall.getHeight());
 					}
 				} else {
-					path.curveTo(this.x, this.y, this.x, this.y, this.x + this.width / 2 - 0.5, this.y);
+					EntityWall wWall = this.getWallAtDirection(Direction.WEST);
+					if (directions.contains(Direction.WEST) && wWall.getWallAtDirection(Direction.NORTH) != null) {
+						path.curveTo(wWall.getX() + wWall.getWidth(), wWall.getY(), wWall.getX() + wWall.getWidth(), wWall.getY(), this.x + this.width / 2, this.y);
+					} else {
+						path.curveTo(this.x, this.y, this.x, this.y, this.x + this.width / 2, this.y);
+					}
 				}
 			}
 			
 			
-			//this.x += 100;
+			this.x += 100;
 			path.moveTo(this.x, this.y + this.height / 2);
 			path.curveTo(this.x, this.y, this.x, this.y, this.x + this.width / 2, this.y);
 			path.curveTo(this.x + this.width, this.y, this.x + this.width, this.y, this.x + this.width, this.y + this.height/2);
 			path.curveTo(this.x + this.width, this.y + this.height, this.x + this.width, this.y + this.height, this.x + this.width/2, this.y + this.width);
 			path.curveTo(this.x, this.y + this.height, this.x, this.y + this.height, this.x, this.y + this.height/2);
-			//this.x -= 100;
+			this.x -= 100;
 		}
-		//for (int i = 0; i < 20; i++)
+		for (int i = 0; i < 3; i++)
 		g.draw(path);
 	}
 	
