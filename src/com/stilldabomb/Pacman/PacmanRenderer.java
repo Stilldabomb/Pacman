@@ -13,31 +13,47 @@ import javax.swing.JPanel;
 import lombok.Getter;
 
 import com.stilldabomb.Pacman.entities.*;
-import com.stilldabomb.Pacman.entities.EntityWall.WallType;
 
 public class PacmanRenderer extends JPanel {
 	
 	@Getter
 	private static PacmanRenderer instance;
+	private static int bsize = 30;
 	@Getter
-	private static int windowSize = 500;
+	private static int windowSize = (bsize + 1)*Pacman.pacmanSize;
 	private long lastUpdate;
 	@Getter
 	private List<Entity> entities = new ArrayList<Entity>() {{
 		add(new EntityPacman());
-		add(new EntityWall(5, 5));
-		add(new EntityWall(4, 5));
-		add(new EntityWall(6, 5));
-		add(new EntityWall(5, 4));
-		add(new EntityWall(5, 6));
-		add(new EntityWall(8, 5));
-		add(new EntityWall(8, 6));
 	}};
 	
 	public PacmanRenderer() {
 		instance = this;
 		this.setBackground(Color.BLACK);
 		this.setPreferredSize(new Dimension(windowSize, windowSize));
+		// Top and left walls
+		for (int i = 0; i < bsize; i++) {
+			entities.add(new EntityWall(i, -1));
+			entities.add(new EntityWall(i, 0));
+			if (i != bsize / 2)
+				entities.add(new EntityWall(-1, i));
+			if (i + 1 != bsize / 2)
+				entities.add(new EntityWall(0, i + 1));
+			if (i == bsize - 1) {
+				entities.add(new EntityWall(-1, i + 1));
+				entities.add(new EntityWall(i + 1, -1));
+			}
+			if (i != bsize / 2)
+				entities.add(new EntityWall(bsize, i));
+			if (i != bsize / 2)
+				entities.add(new EntityWall(bsize + 1, i));
+			entities.add(new EntityWall(i + 1, bsize));
+		}
+		
+		for (int i = -1; i < bsize + 3; i++) {
+			entities.add(new EntityWall(i, bsize + 1));
+			entities.add(new EntityWall(i, bsize + 2));
+		}
 	}
 	
 	public void update(double delta) {
@@ -58,7 +74,9 @@ public class PacmanRenderer extends JPanel {
 		entities.stream().filter(Entity::isNotPacman).forEach(e -> e.draw(g));
 		entities.stream().filter(Entity::isPacman).forEach(e -> e.draw(g));
 		
-		try {Thread.sleep(25);}catch(Exception e){e.printStackTrace();}
+		
+		
+		try {Thread.sleep(0);}catch(Exception e){e.printStackTrace();}
 		repaint();
 	}
 	

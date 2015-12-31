@@ -9,17 +9,23 @@ import com.stilldabomb.Pacman.Pacman;
 import com.stilldabomb.Pacman.PacmanRenderer;
 import com.stilldabomb.Pacman.events.Keyboard;
 
+import lombok.Getter;
+
 public class EntityPacman extends Entity {
 	
 	private Arc2D.Double arc;
 	private int arcStart, gap, size = Pacman.pacmanSize;
 	private boolean opening;
+	@Getter
+	private int lives = 3;
 	
 	public EntityPacman() {
 		this.arc = new Arc2D.Double(0,0,size,size,0,0,Arc2D.PIE);
 		this.collisionType = CollisionType.ENTITY;
 		this.width = this.height = this.size = Pacman.pacmanSize;
 		this.speed = 70;
+		this.x = PacmanRenderer.getWindowSize() / 2 - this.width / 2;
+		this.y = PacmanRenderer.getWindowSize() / 2 - this.height / 2;
 	}
 	
 	public void update(double delta) {

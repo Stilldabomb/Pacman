@@ -1,6 +1,5 @@
 package com.stilldabomb.Pacman.entities;
 
-import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.GeneralPath;
@@ -65,7 +64,6 @@ public class EntityWall extends Entity {
 			}
 		});
 		g.setColor(Color.BLUE);
-		//g.setStroke(new BasicStroke(this.wallType == WallType.BORDER ? 2.5f : 2.75f));
 		GeneralPath path = new GeneralPath();
 		if (directions.isEmpty()) {
 			path.moveTo(this.x, this.y + this.height / 2);
@@ -92,7 +90,7 @@ public class EntityWall extends Entity {
 					EntityWall nWall = this.getWallAtDirection(Direction.NORTH);
 					EntityWall nwWall = nWall.getWallAtDirection(Direction.WEST);
 					if (nwWall == null) {
-						path.curveTo(this.x, this.y, this.x, this.y, this.x, this.y - this.width / 2);
+						path.curveTo(this.x, this.y, this.x, this.y, this.x, this.y - this.height / 2);
 					} else {
 						path.curveTo(nWall.getX(), nWall.getY() + nWall.getHeight(), nWall.getX(), nWall.getY() + nWall.getHeight(), nwWall.getX() + nwWall.getWidth() / 2, nwWall.getY() + nwWall.getHeight());
 					}
@@ -106,17 +104,101 @@ public class EntityWall extends Entity {
 				}
 			}
 			
+			// Upper right corner
+			if (!(directions.contains(Direction.EAST) && directions.contains(Direction.NORTH) && this.getWallAtDirection(Direction.NORTH).getWallAtDirection(Direction.EAST) != null)) {
+				if (directions.contains(Direction.EAST)) {
+					EntityWall eWall = this.getWallAtDirection(Direction.EAST);
+					EntityWall neWall = eWall.getWallAtDirection(Direction.NORTH);
+					if (neWall == null) {
+						path.moveTo(this.x + this.width * 1.5 , this.y);
+					} else {
+						path.moveTo(neWall.getX(), neWall.getY() + neWall.getHeight() / 2);
+					}
+				} else {
+					path.moveTo(this.x + this.width, this.y + this.height / 2);
+				}
+				if (directions.contains(Direction.NORTH)) {
+					EntityWall nWall = this.getWallAtDirection(Direction.NORTH);
+					EntityWall neWall = nWall.getWallAtDirection(Direction.EAST);
+					if (neWall == null) {
+						path.curveTo(this.x + this.width, this.y, this.x + this.width, this.y, this.x + this.width, this.y - this.height / 2);
+					} else {
+						path.curveTo(nWall.getX() + nWall.getWidth(), nWall.getY() + nWall.getHeight(), nWall.getX() + nWall.getWidth(), nWall.getY() + nWall.getHeight(), neWall.getX() + neWall.getWidth() / 2, neWall.getY() + neWall.getHeight());
+					}
+				} else {
+					EntityWall eWall = this.getWallAtDirection(Direction.EAST);
+					if (directions.contains(Direction.EAST) && eWall.getWallAtDirection(Direction.NORTH) != null) {
+						path.curveTo(eWall.getX(), eWall.getY(), eWall.getX(), eWall.getY(), this.x + this.width / 2, this.y);
+					} else {
+						path.curveTo(this.x + this.width, this.y, this.x + this.width, this.y, this.x + this.width / 2, this.y);
+					}
+				}
+			}
 			
-			this.x += 100;
-			path.moveTo(this.x, this.y + this.height / 2);
-			path.curveTo(this.x, this.y, this.x, this.y, this.x + this.width / 2, this.y);
-			path.curveTo(this.x + this.width, this.y, this.x + this.width, this.y, this.x + this.width, this.y + this.height/2);
-			path.curveTo(this.x + this.width, this.y + this.height, this.x + this.width, this.y + this.height, this.x + this.width/2, this.y + this.width);
-			path.curveTo(this.x, this.y + this.height, this.x, this.y + this.height, this.x, this.y + this.height/2);
-			this.x -= 100;
+			// Bottom left corner
+			if (!(directions.contains(Direction.WEST) && directions.contains(Direction.SOUTH) && this.getWallAtDirection(Direction.SOUTH).getWallAtDirection(Direction.WEST) != null)) {
+				if (directions.contains(Direction.WEST)) {
+					EntityWall wWall = this.getWallAtDirection(Direction.WEST);
+					EntityWall swWall = wWall.getWallAtDirection(Direction.SOUTH);
+					if (swWall == null) {
+						path.moveTo(this.x - this.width / 2, this.y + this.height);
+					} else {
+						path.moveTo(swWall.getX() + swWall.getWidth(), swWall.getY() + swWall.getHeight() / 2);
+					}
+				} else {
+					path.moveTo(this.x, this.y + this.height / 2);
+				}
+				if (directions.contains(Direction.SOUTH)) {
+					EntityWall sWall = this.getWallAtDirection(Direction.SOUTH);
+					EntityWall swWall = sWall.getWallAtDirection(Direction.WEST);
+					if (swWall == null) {
+						path.curveTo(this.x, this.y + this.height, this.x, this.y + this.height, this.x, this.y + this.height * 1.5);
+					} else {
+						path.curveTo(sWall.getX(), sWall.getY(), sWall.getX(), sWall.getY(), swWall.getX() + swWall.getWidth() / 2, swWall.getY());
+					}
+				} else {
+					EntityWall wWall = this.getWallAtDirection(Direction.WEST);
+					if (directions.contains(Direction.WEST) && wWall.getWallAtDirection(Direction.SOUTH) != null) {
+						path.curveTo(wWall.getX() + wWall.getWidth(), wWall.getY() + wWall.getHeight(), wWall.getX() + wWall.getWidth(), wWall.getY() + wWall.getHeight(), this.x + this.width / 2, this.y + this.height);
+					} else {
+						path.curveTo(this.x, this.y + this.height, this.x, this.y + this.height, this.x + this.width / 2, this.y + this.height);
+					}
+				}
+			}
+			
+			// Bottom right corner
+			if (!(directions.contains(Direction.EAST) && directions.contains(Direction.SOUTH) && this.getWallAtDirection(Direction.SOUTH).getWallAtDirection(Direction.EAST) != null)) {
+				if (directions.contains(Direction.EAST)) {
+					EntityWall eWall = this.getWallAtDirection(Direction.EAST);
+					EntityWall seWall = eWall.getWallAtDirection(Direction.SOUTH);
+					if (seWall == null) {
+						path.moveTo(this.x + this.width * 1.5 , this.y + this.height);
+					} else {
+						path.moveTo(seWall.getX(), seWall.getY() + seWall.getHeight() / 2);
+					}
+				} else {
+					path.moveTo(this.x + this.width, this.y + this.height / 2);
+				}
+				if (directions.contains(Direction.SOUTH)) {
+					EntityWall sWall = this.getWallAtDirection(Direction.SOUTH);
+					EntityWall seWall = sWall.getWallAtDirection(Direction.EAST);
+					if (seWall == null) {
+						path.curveTo(this.x + this.width, this.y + this.height, this.x + this.width, this.y + this.height, this.x + this.width, this.y + this.height * 1.5);
+					} else {
+						path.curveTo(sWall.getX() + sWall.getWidth(), sWall.getY(), sWall.getX() + sWall.getWidth(), sWall.getY(), seWall.getX() + seWall.getWidth() / 2, seWall.getY());
+					}
+				} else {
+					EntityWall eWall = this.getWallAtDirection(Direction.EAST);
+					if (directions.contains(Direction.EAST) && eWall.getWallAtDirection(Direction.SOUTH) != null) {
+						path.curveTo(eWall.getX(), eWall.getY() + eWall.getHeight(), eWall.getX(), eWall.getY() + eWall.getHeight(), this.x + this.width / 2, this.y + this.height);
+					} else {
+						path.curveTo(this.x + this.width, this.y + this.height, this.x + this.width, this.y + this.height, this.x + this.width / 2, this.y + this.height);
+					}
+				}
+			}
 		}
 		for (int i = 0; i < 3; i++)
-		g.draw(path);
+			g.draw(path);
 	}
 	
 	public EntityWall getWallAtDirection(Direction direction) {
