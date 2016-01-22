@@ -31,38 +31,47 @@ public class EntityWall extends Entity {
 	private int cordinateX,cordinateY;
 	@Getter
 	private WallType wallType;
+	private boolean connectToSurroundings;
 	
-	public EntityWall(int x, int y, WallType wallType) {
-		super.collisionType = CollisionType.SOLID;
-		super.width = super.height = Pacman.pacmanSize;
-		super.x = x*Pacman.pacmanSize;
-		super.y = y*Pacman.pacmanSize;
-		this.cordinateX = x;
-		this.cordinateY = y;
+	public EntityWall(double x, double y, WallType wallType, boolean connectToSurroundings) {
+		this.collisionType = CollisionType.SOLID;
+		this.renderType = RenderType.STATIONARY;
+		this.width = this.height = Pacman.pacmanSize;
+		this.x = x;
+		this.y = y;
+		this.cordinateX = (int)(x/Pacman.pacmanSize);
+		this.cordinateY = (int)(y/Pacman.pacmanSize);
+		this.connectToSurroundings = connectToSurroundings;
+	}
+	
+	public EntityWall(double x, double y, boolean connectToSurroundings) {
+		this(x, y, WallType.INSIDE, connectToSurroundings);
 	}
 	
 	public EntityWall(int x, int y) {
-		this(x, y, WallType.INSIDE);
+		this(x*Pacman.pacmanSize, y*Pacman.pacmanSize, true);
 	}
 
 	public void draw(Graphics2D g) {
 		List<Direction> directions = new ArrayList<Direction>();
-		PacmanRenderer.getInstance().getEntities().stream().filter(e -> (e instanceof EntityWall)).forEach(e -> {
-			EntityWall w = (EntityWall)e;
-			if (this.getCordinateX() == w.getCordinateX()) { // Up & Down
-				if (this.getCordinateY() - 1 == w.getCordinateY()) { // Up
-					directions.add(Direction.NORTH);
-				} else if (this.getCordinateY() + 1 == w.getCordinateY()) { // Down
-					directions.add(Direction.SOUTH);
+		if (this.connectToSurroundings) {
+			PacmanRenderer.getInstance().getEntities().stream().filter(e -> (e instanceof EntityWall)).forEach(e -> {
+				EntityWall w = (EntityWall)e;
+				if (this.getCordinateX() == w.getCordinateX()) { // Up & Down
+					if (this.getCordinateY() - 1 == w.getCordinateY()) { // Up
+						directions.add(Direction.NORTH);
+					} else if (this.getCordinateY() + 1 == w.getCordinateY()) { // Down
+						directions.add(Direction.SOUTH);
+					}
+				} else if (this.getCordinateY() == w.getCordinateY()) { // Left & Right
+					if (this.getCordinateX() - 1 == w.getCordinateX()) { // Left
+						directions.add(Direction.WEST);
+					} else if (this.getCordinateX() + 1 == w.getCordinateX()) { // Right
+						directions.add(Direction.EAST);
+					}
 				}
-			} else if (this.getCordinateY() == w.getCordinateY()) { // Left & Right
-				if (this.getCordinateX() - 1 == w.getCordinateX()) { // Left
-					directions.add(Direction.WEST);
-				} else if (this.getCordinateX() + 1 == w.getCordinateX()) { // Right
-					directions.add(Direction.EAST);
-				}
-			}
-		});
+			});
+		}
 		g.setColor(Color.BLUE);
 		GeneralPath path = new GeneralPath();
 		if (directions.isEmpty()) {
@@ -220,6 +229,14 @@ public class EntityWall extends Entity {
 			}
 		});
 		return wall[0];
+	}
+	
+	public boolean collidesWith(Entity e) {
+		boolean left = e.getX() + e.getWidth() < this.getX();
+		boolean right = e.getX() > this.getX() + this.getWidth();
+		boolean top = e.getY() + e.getHeight() < this.getY();
+		boolean bottom = e.getY() > this.getY() + this.getHeight();
+		return (left || right || top || bottom) ? false : super.collidesWith(e);
 	}
 	
 }

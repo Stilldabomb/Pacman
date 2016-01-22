@@ -3,6 +3,7 @@ package com.stilldabomb.Pacman.entities;
 import java.awt.Graphics2D;
 
 import lombok.Getter;
+import lombok.Setter;
 
 public abstract class Entity {
 	
@@ -20,12 +21,21 @@ public abstract class Entity {
 		ENTITY
 	}
 	
+	public enum RenderType {
+		STATIONARY,
+		MOVING
+	}
+	
 	@Getter
 	protected Direction direction = Direction.EAST;
 	@Getter
 	protected CollisionType collisionType;
 	@Getter
-	protected int x,y,width,height;
+	protected RenderType renderType = RenderType.MOVING;
+	@Getter @Setter
+	protected double x,y;
+	@Getter
+	protected int width,height;
 	@Getter
 	protected float speed;
 	
@@ -34,13 +44,22 @@ public abstract class Entity {
 	
 	public boolean collidesWith(Entity e) {
 		if (e == null || e.getCollisionType() == CollisionType.NONE || this.getCollisionType() == CollisionType.NONE) return false;
-		for (int x = this.x; x < this.x + this.width; x++) {
-			for (int y = this.y; y < this.y + this.height; y++) {
-				for (int xc = e.x; xc < e.x + e.width; xc++) {
-					for (int yc = e.y; yc < e.y + e.height; yc++) {
-						if (x == xc && y == yc) return true;
+		for (double x = this.x; x < this.x + this.width; x++) {
+			for (double y = this.y; y < this.y + this.height; y++) {
+				for (double xc = e.x; xc < e.x + e.width; xc++) {
+					for (double yc = e.y; yc < e.y + e.height; yc++) {
+						if (Math.floor(x) == Math.floor(xc) && Math.floor(y) == Math.floor(yc)) return true;
 					}
 				}
+			}
+		}
+		return false;
+	}
+	
+	public boolean collidesWith(double d, double e) {
+		for (double tx = this.x; tx < this.x + this.width; tx++) {
+			for (double ty = this.y; ty < this.y + this.height; ty++) {
+				if (Math.floor(tx) == Math.floor(d) && Math.floor(ty) == Math.floor(e)) return true;
 			}
 		}
 		return false;
@@ -52,6 +71,14 @@ public abstract class Entity {
 	
 	public static boolean isNotPacman(Entity e) {
 		return !isPacman(e);
+	}
+	
+	public static boolean isStationary(Entity e) {
+		return e.renderType == RenderType.STATIONARY;
+	}
+	
+	public static boolean isNotStationary(Entity e) {
+		return !isStationary(e);
 	}
 	
 }

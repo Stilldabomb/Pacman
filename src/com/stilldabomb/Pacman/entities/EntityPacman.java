@@ -18,17 +18,20 @@ public class EntityPacman extends Entity {
 	private boolean opening;
 	@Getter
 	private int lives = 3;
+	long lastMove = 0;
 	
-	public EntityPacman() {
+	public EntityPacman(int x, int y) {
 		this.arc = new Arc2D.Double(0,0,size,size,0,0,Arc2D.PIE);
 		this.collisionType = CollisionType.ENTITY;
 		this.width = this.height = this.size = Pacman.pacmanSize;
 		this.speed = 70;
-		this.x = PacmanRenderer.getWindowSize() / 2 - this.width / 2;
-		this.y = PacmanRenderer.getWindowSize() / 2 - this.height / 2;
+		this.x = x*Pacman.pacmanSize;
+		this.y = y*Pacman.pacmanSize;
 	}
 	
 	public void update(double delta) {
+		if (Pacman.isMapBuilderEnabled())
+			return;
 		// Set direction based on key down
 		if (Keyboard.isKeyDown(KeyEvent.VK_W))
 			this.setDirection(Direction.NORTH);
@@ -44,63 +47,63 @@ public class EntityPacman extends Entity {
 			this.speed = 90;
 		
 		// Move Pacman based on direction
-		int displacement = (int)(this.speed*delta);
+		double displacement = Pacman.pacmanSize*delta;
+		long now = System.currentTimeMillis();
+		if (lastMove == 0) lastMove = now;
 		switch (direction) {
-		case NORTH:
-			this.y -= displacement;
-			if (this.y + this.size < 0)
-				this.y = PacmanRenderer.getWindowSize() - this.size;
-			break;
-		case SOUTH:
-			this.y += displacement;
-			if (this.y > PacmanRenderer.getWindowSize())
-				this.y = 0;
-			break;
-		case EAST:
-			this.x += displacement;
-			if (this.x > PacmanRenderer.getWindowSize())
-				this.x = 0;
-			break;
-		case WEST:
-			this.x -= displacement;
-			if (this.x + this.size < 0)
-				this.x = PacmanRenderer.getWindowSize() - this.size;
-			break;
+			case NORTH:
+				this.y -= displacement;
+				if (this.y + this.size < 0)
+					this.y = PacmanRenderer.getWindowHeight() - this.size;
+				break;
+			case SOUTH:
+				this.y += displacement;
+				if (this.y > PacmanRenderer.getWindowHeight())
+					this.y = 0;
+				break;
+			case EAST:
+				this.x += displacement;
+				if (this.x > PacmanRenderer.getWindowWidth())
+					this.x = 0;
+				break;
+			case WEST:
+				this.x -= displacement;
+				if (this.x + this.size < 0)
+					this.x = PacmanRenderer.getWindowWidth() - this.size;
+				break;
 		}
-		
-		PacmanRenderer.getInstance().getEntities().stream().filter(e -> e instanceof EntityWall).filter(this::collidesWith).forEach(w -> {
-			if (this.direction == Direction.NORTH || this.direction == Direction.SOUTH) {
-				if (this.y < w.y) {
-					this.y = w.y - this.height;
-				} else {
-					this.y = w.y + w.height;
-				}
-			}
-			if (this.direction == Direction.EAST || this.direction == Direction.WEST) {
-				if (this.x < w.x) {
-					this.x = w.x - this.width;
-				} else {
-					this.x = w.x + w.height;
-				}
-			}
-		});;
-		
+
 		// Set the gap of the mouth
-		int gps = 300;
+		double gps = 250*delta;
 		int maxGap = 100;
 		if (this.opening) {
-			this.gap += gps*delta;
+			this.gap += gps;
 			if (this.gap >= maxGap) {
 				this.gap = maxGap;
 				this.opening = false;
 			}
 		} else {
-			this.gap -= gps*delta;
+			this.gap -= gps;
 			if (this.gap <= 0) {
 				this.gap = 0;
 				this.opening = true;
 			}
 		}
+		
+		PacmanRenderer.getInstance().getEntities().stream().filter(e -> e instanceof EntityWall).filter(e -> ((EntityWall)e).collidesWith(this)).forEach(w -> {
+			if (this.direction == Direction.NORTH) {
+				this.y = w.y + w.height;
+			}
+			if (this.direction == Direction.SOUTH) {
+				this.y = w.y - this.height;
+			}
+			if (this.direction == Direction.EAST) {
+				this.x = w.x - this.width;
+			}
+			if (this.direction == Direction.WEST) {
+				this.x = w.x + w.width;
+			}
+		});
 	}
 	
 	public void draw(Graphics2D g) {
@@ -112,21 +115,32 @@ public class EntityPacman extends Entity {
 		g.setColor(Color.YELLOW);
 		g.fill(this.arc);
 		if (this.x < 0) {
-			this.arc.x += PacmanRenderer.getWindowSize();
+			this.arc.x += PacmanRenderer.getWindowWidth();
 		}
-		if (this.x + this.size > PacmanRenderer.getWindowSize()) {
-			this.arc.x -= PacmanRenderer.getWindowSize();
+		if (this.x + this.size > PacmanRenderer.getWindowHeight()) {
+			this.arc.x -= PacmanRenderer.getWindowWidth();
 		}
 		if (this.y < 0) {
-			this.arc.y += PacmanRenderer.getWindowSize();
+			this.arc.y += PacmanRenderer.getWindowHeight();
 		}
-		if (this.y + this.size > PacmanRenderer.getWindowSize()) {
-			this.arc.y -= PacmanRenderer.getWindowSize();
+		if (this.y + this.size > PacmanRenderer.getWindowHeight()) {
+			this.arc.y -= PacmanRenderer.getWindowHeight();
 		}
 		g.fill(this.arc);
 	}
 	
 	public void setDirection(Direction direction) {
+		switch (this.direction) {
+		case NORTH:
+			if (this.y - Math.floor(this.y) > 0.02)return;
+			break;
+		case SOUTH:
+			break;
+		case EAST:
+			break;
+		case WEST:
+			break;
+		}
 		this.direction = direction;
 		switch (this.direction) {
 		case NORTH:
